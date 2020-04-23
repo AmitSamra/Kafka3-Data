@@ -6,15 +6,15 @@ from dotenv import load_dotenv
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
+import statistics
+
 
 # Load enviornment variables from .env file
 dotenv_local_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path=dotenv_local_path, verbose=True) 
 
-
 # Create Declartive base class maintains catalog of classes and tables
 Base = declarative_base()
-
 
 # Create Transaction class; transaction table mapped to this class
 # transaction table stores records for end-users of our application
@@ -28,7 +28,6 @@ class Transaction(Base):
     type = Column(String(250), nullable=False)
     date = Column(Integer)
     amt = Column(Integer)
-
 
 class XactionConsumer:
     def __init__(self):
@@ -50,6 +49,9 @@ class XactionConsumer:
         Session.configure(bind=self.engine)
         self.session = Session()    
         #Go back to the readme.
+        self.avgDep = {}
+        self.avgWth = {}
+        self.stdDev = {}
 
     def handleMessages(self):
         for message in self.consumer:
@@ -63,6 +65,8 @@ class XactionConsumer:
 
             if message['custid'] not in self.custBalances:
                 self.custBalances[message['custid']] = 0
+                self.avg_dep[message['custid']] =   
+
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']
             else:

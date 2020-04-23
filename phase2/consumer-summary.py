@@ -64,16 +64,26 @@ class XactionConsumer:
             print('{} received'.format(message))
             self.ledger[message['custid']] = message
             # add message to the transaction table in your SQL usinf SQLalchemy
-            message_sql = Transaction(custid=message['custid'], type=message['type'], date=message['date'], amt=message['amt'])
-            self.session.add(message_sql)
-            self.session.commit()
+            #message_sql = Transaction(custid=message['custid'], type=message['type'], date=message['date'], amt=message['amt'])
+            #self.session.add(message_sql)
+            #self.session.commit()
 
             if message['custid'] not in self.custBalances:
                 self.custBalances[message['custid']] = 0
+
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']
+                self.deposits.append(message['amt'])
+                self.avgDep = statistics.mean(self.deposits)
+                self.stdDevDep = statistics.stdev(self.deposits)
+
             else:
                 self.custBalances[message['custid']] -= message['amt']
+                self.withdrawals.append(message['amit'])
+                self.avgDep = statistics.mean(self.withdrawals)
+                self.stdDevWth = statistics.stdev(self.withdrawals)
+
+    
             print(self.custBalances)
 
 

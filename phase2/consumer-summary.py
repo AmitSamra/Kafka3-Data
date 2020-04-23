@@ -8,7 +8,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
 import statistics
 
-
 # Load enviornment variables from .env file
 dotenv_local_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path=dotenv_local_path, verbose=True) 
@@ -49,15 +48,13 @@ class XactionConsumer:
         Session.configure(bind=self.engine)
         self.session = Session()    
         #Go back to the readme.
-        self.avgDep = {}
-        self.avgWth = {}
-        self.stdDev = {}
-        self.totalDep = {}
-        self.totalWth = {}
-        self.countDep = {}
-        self.countWth = {}
-        self.summary = []
-        self.stats = {}
+        self.avgDep = 0
+        self.avgWth = 0
+        self.stdDevDep = None
+        self.stdDevWth = None
+        self.deposits = []
+        self.withdrawals = []
+        self.summary = {}
 
     def handleMessages(self):
         for message in self.consumer:
@@ -65,19 +62,20 @@ class XactionConsumer:
             print('{} received'.format(message))
             self.ledger[message['custid']] = message
             # add message to the transaction table in your SQL using SQLalchemy
-            message_sql = Transaction(custid=message['custid'], type=message['type'], date=message['date'], amt=message['amt'])
-            self.session.add(message_sql)
-            self.session.commit()
-
+            #message_sql = Transaction(custid=message['custid'], type=message['type'], date=message['date'], amt=message['amt'])
+            #self.session.add(message_sql)
+            #self.session.commit()
 
             if message['custid'] not in self.custBalances:
-                self.custBalances[message['custid']] = 0
-                self.summary[message['custid']] = {}
+                self.custBalances[message['custid']] = 0  
+
 
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']
+
             else:
                 self.custBalances[message['custid']] -= message['amt']
+            
             print(self.custBalances)
 
 

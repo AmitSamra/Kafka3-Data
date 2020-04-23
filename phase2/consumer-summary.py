@@ -6,14 +6,15 @@ from dotenv import load_dotenv
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
-import statistics
 
 # Load enviornment variables from .env file
 dotenv_local_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path=dotenv_local_path, verbose=True) 
 
+
 # Create Declartive base class maintains catalog of classes and tables
 Base = declarative_base()
+
 
 # Create Transaction class; transaction table mapped to this class
 # transaction table stores records for end-users of our application
@@ -27,6 +28,7 @@ class Transaction(Base):
     type = Column(String(250), nullable=False)
     date = Column(Integer)
     amt = Column(Integer)
+
 
 class XactionConsumer:
     def __init__(self):
@@ -61,21 +63,17 @@ class XactionConsumer:
             message = message.value
             print('{} received'.format(message))
             self.ledger[message['custid']] = message
-            # add message to the transaction table in your SQL using SQLalchemy
-            #message_sql = Transaction(custid=message['custid'], type=message['type'], date=message['date'], amt=message['amt'])
-            #self.session.add(message_sql)
-            #self.session.commit()
+            # add message to the transaction table in your SQL usinf SQLalchemy
+            message_sql = Transaction(custid=message['custid'], type=message['type'], date=message['date'], amt=message['amt'])
+            self.session.add(message_sql)
+            self.session.commit()
 
             if message['custid'] not in self.custBalances:
-                self.custBalances[message['custid']] = 0  
-
-
+                self.custBalances[message['custid']] = 0
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']
-
             else:
                 self.custBalances[message['custid']] -= message['amt']
-            
             print(self.custBalances)
 
 

@@ -12,10 +12,8 @@ import statistics
 dotenv_local_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path=dotenv_local_path, verbose=True) 
 
-
 # Create Declartive base class maintains catalog of classes and tables
 Base = declarative_base()
-
 
 # Create Transaction class; transaction table mapped to this class
 # transaction table stores records for end-users of our application
@@ -29,7 +27,6 @@ class Transaction(Base):
     type = Column(String(250), nullable=False)
     date = Column(Integer)
     amt = Column(Integer)
-
 
 class XactionConsumer:
     def __init__(self):
@@ -70,21 +67,27 @@ class XactionConsumer:
             #self.session.commit()
 
             if message['custid'] not in self.custBalances:
-                self.custBalances[message['custid']] = 0
+                self.custBalances[message['custid']] = 0  
 
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']
                 self.deposits.append(message['amt'])
                 self.avgDep = statistics.mean(self.deposits)
-                self.stdDevDep = statistics.stdev(self.deposits)
+                if len(self.deposits) > 1:
+                    self.stdDevDep = statistics.stdev(self.deposits)
 
             else:
                 self.custBalances[message['custid']] -= message['amt']
-                self.withdrawals.append(message['amit'])
-                self.avgDep = statistics.mean(self.withdrawals)
-                self.stdDevWth = statistics.stdev(self.withdrawals)
-
-            self.summary = {'avg_deposit':self.avgDep, 'avg_withdrawal':self.avgWth, 'stddev_deposits':self.stdDevDep, 'stddev_withdrawals':self.stdDevWth}
+                self.withdrawals.append(message['amt'])
+                self.avgWth = statistics.mean(self.withdrawals)
+                if len(self.withdrawals) > 1:
+                    self.stdDevWth = statistics.stdev(self.withdrawals)
+            
+            self.summary = {'avg_deposit':round(self.avgDep,2), 'avg_withdrawal':round(self.avgWth,2)}
+            if len(self.deposits) > 1:
+                self.summary['stddev_deposits'] = round(self.stdDevDep,2)
+            if len(self.withdrawals) > 1:
+                self.summary['stddev_withdrawals'] = round(self.stdDevWth,2)
 
             print(self.summary)
             #print(self.custBalances)

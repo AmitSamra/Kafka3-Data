@@ -83,8 +83,10 @@ class XactionConsumer:
                 self.avgDep = statistics.mean(self.withdrawals)
                 self.stdDevWth = statistics.stdev(self.withdrawals)
 
-    
-            print(self.custBalances)
+            self.summary = {'avg_deposit':self.avgDep, 'avg_withdrawal':self.avgWth, 'stddev_deposits':self.stdDevDep, 'stddev_withdrawals':self.stdDevWth}
+
+            print(self.summary)
+            #print(self.custBalances)
 
 
 if __name__ == "__main__":

@@ -52,20 +52,27 @@ class XactionConsumer:
         self.avgDep = {}
         self.avgWth = {}
         self.stdDev = {}
+        self.totalDep = {}
+        self.totalWth = {}
+        self.countDep = {}
+        self.countWth = {}
+        self.summary = []
+        self.stats = {}
 
     def handleMessages(self):
         for message in self.consumer:
             message = message.value
             print('{} received'.format(message))
             self.ledger[message['custid']] = message
-            # add message to the transaction table in your SQL usinf SQLalchemy
+            # add message to the transaction table in your SQL using SQLalchemy
             message_sql = Transaction(custid=message['custid'], type=message['type'], date=message['date'], amt=message['amt'])
             self.session.add(message_sql)
             self.session.commit()
 
+
             if message['custid'] not in self.custBalances:
                 self.custBalances[message['custid']] = 0
-                self.avg_dep[message['custid']] =   
+                self.summary[message['custid']] = {}
 
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']

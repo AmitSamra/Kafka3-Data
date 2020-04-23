@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
 import statistics
 
+
 # Load enviornment variables from .env file
 dotenv_local_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path=dotenv_local_path, verbose=True) 
@@ -48,13 +49,6 @@ class XactionConsumer:
         Session.configure(bind=self.engine)
         self.session = Session()    
         #Go back to the readme.
-        self.avgDep = 0
-        self.avgWth = 0
-        self.stdDevDep = None
-        self.stdDevWth = None
-        self.deposits = []
-        self.withdrawals = []
-        self.summary = {}
 
     def handleMessages(self):
         for message in self.consumer:
@@ -71,26 +65,14 @@ class XactionConsumer:
 
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']
-                self.deposits.append(message['amt'])
-                self.avgDep = statistics.mean(self.deposits)
-                if len(self.deposits) > 1:
-                    self.stdDevDep = statistics.stdev(self.deposits)
 
             else:
                 self.custBalances[message['custid']] -= message['amt']
-                self.withdrawals.append(message['amt'])
-                self.avgWth = statistics.mean(self.withdrawals)
-                if len(self.withdrawals) > 1:
-                    self.stdDevWth = statistics.stdev(self.withdrawals)
             
-            self.summary = {'avg_deposit':round(self.avgDep,2), 'avg_withdrawal':round(self.avgWth,2)}
-            if len(self.deposits) > 1:
-                self.summary['stddev_deposits'] = round(self.stdDevDep,2)
-            if len(self.withdrawals) > 1:
-                self.summary['stddev_withdrawals'] = round(self.stdDevWth,2)
+            print(self.custBalances)
 
-            print(self.summary)
-            #print(self.custBalances)
+            if self.custBalances[message['custid']] < -5000:
+                print(f"Warning: customer {message['custid']} has a large negative balance")
 
 
 if __name__ == "__main__":

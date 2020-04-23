@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
+import statistics
 
 # Load enviornment variables from .env file
 dotenv_local_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -63,7 +64,7 @@ class XactionConsumer:
             message = message.value
             print('{} received'.format(message))
             self.ledger[message['custid']] = message
-            # add message to the transaction table in your SQL usinf SQLalchemy
+            # add message to the transaction table in your SQL using SQLalchemy
             #message_sql = Transaction(custid=message['custid'], type=message['type'], date=message['date'], amt=message['amt'])
             #self.session.add(message_sql)
             #self.session.commit()

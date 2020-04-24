@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
 import statistics
 
+
 # Load enviornment variables from .env file
 dotenv_local_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path=dotenv_local_path, verbose=True) 
